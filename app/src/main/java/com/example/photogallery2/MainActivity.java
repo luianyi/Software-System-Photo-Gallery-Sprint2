@@ -5,7 +5,7 @@
 //- either go outside and wait until you get a GPS signal, or connect to wifi
 //- take a picture using this app
 //If a picture does not have the GPS info in the Exif Tags, "no location info" is displayed
-// this is a test on pushing code directly from android studio to github
+// this is a test on pushing code directly from android studio to github sajjad
 package com.example.photogallery2;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
