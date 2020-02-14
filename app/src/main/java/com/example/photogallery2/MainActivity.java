@@ -309,6 +309,7 @@ public class MainActivity extends AppCompatActivity
             else
                 tv.setText("No location information");
         }
+		// 
         else //Go to blank screen
         {
             //1. There is no current element so leave currentElement as is
