@@ -8,7 +8,7 @@
 // this is a test on pushing code directly from android studio to github pull successful
 
 // Ian, you r wrong....bye
-
+// willm chnges
 
 package com.example.photogallery2;
 import androidx.appcompat.app.AppCompatActivity;
