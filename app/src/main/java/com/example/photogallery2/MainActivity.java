@@ -7,7 +7,7 @@
 //If a picture does not have the GPS info in the Exif Tags, "no location info" is displayed
 // this is a test on pushing code directly from android studio to github pull successful
 
-// sajjad is my bose
+// Ian, you r wrong....bye
 
 
 package com.example.photogallery2;
