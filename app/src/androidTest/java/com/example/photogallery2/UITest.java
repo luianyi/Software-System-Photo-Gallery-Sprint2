@@ -58,6 +58,10 @@ public class UITest {
     public void changeText_sameActivity() {
         //The test assumes that 2 pictures have been taken already!!
         //Enter a caption "Caption1"
+
+
+        //    UI test for previous sprint. IL
+        /*
         onView(withId(R.id.editTextCaption)).perform(typeText("Caption1"), closeSoftKeyboard());
         //Press Save
         onView(withId(R.id.buttonSaveCaption)).perform(click());
@@ -86,5 +90,11 @@ public class UITest {
         onView(withId(R.id.buttonLeft)).perform(click());
         //Press Snap (does nothing)
         onView(withId(R.id.btnSnap)).perform(click());
+
+         */
+
+        // UI test for sprint 2
+
+
     }
 }
