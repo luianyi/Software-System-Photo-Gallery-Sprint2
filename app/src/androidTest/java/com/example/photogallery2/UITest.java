@@ -57,11 +57,11 @@ public class UITest {
     @Test
     public void changeText_sameActivity() {
         //The test assumes that 2 pictures have been taken already!!
-        //Enter a caption "Caption1"
 
 
         //    UI test for previous sprint. IL
         /*
+        //Enter a caption "Caption1"
         onView(withId(R.id.editTextCaption)).perform(typeText("Caption1"), closeSoftKeyboard());
         //Press Save
         onView(withId(R.id.buttonSaveCaption)).perform(click());
@@ -93,8 +93,21 @@ public class UITest {
 
          */
 
-        // UI test for sprint 2
-
+        // UI test for sprint 2. IL
+        //Press Search
+        onView(withId(R.id.btnSnap2)).perform(click());
+        //In the location search window Enter the desire search for upper bound latitude
+        onView(withId(R.id.search_fromLatitude)).perform(typeText("49.260000"), closeSoftKeyboard());
+        //In the location search window Enter the desire search for lower bound latitude
+        onView(withId(R.id.search_toLatitude)).perform(typeText("49.250000"), closeSoftKeyboard());
+        //In the location search window Enter the desire search for upper bound longitude
+        onView(withId(R.id.search_fromLongitude)).perform(typeText("-123.002800"), closeSoftKeyboard());
+        //In the location search window Enter the desire search for lower bound longitude
+        onView(withId(R.id.search_toLongitude)).perform(typeText("-123.003000"), closeSoftKeyboard());
+        //In the search window Press Search to go back to main activity
+        onView(withId(R.id.button)).perform(click());
+        //Press Snap (does nothing)
+        onView(withId(R.id.btnSnap)).perform(click());
 
     }
 }
