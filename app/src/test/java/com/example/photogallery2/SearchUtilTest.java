@@ -140,7 +140,7 @@ public class SearchUtilTest
         assertEquals("Wed Jan 22 08:30:00 PST 2020", dateListF.get(0));
     }//end date search
 
-
+/*
     //--------location search------------------// IL
     @Test
     public void LocationSearch()
@@ -186,6 +186,6 @@ public class SearchUtilTest
         assertEquals("Caption 2", captionListF.get(0));
         assertEquals("Wed Jan 22 08:30:00 PST 2020", dateListF.get(0));
     }//end date search
-
+*/
 
 }//end SearchUtilTest
