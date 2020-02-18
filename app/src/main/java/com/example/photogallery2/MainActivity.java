@@ -351,9 +351,10 @@ public class MainActivity extends AppCompatActivity
         shareIntent.putExtra(Intent.EXTRA_STREAM, share_photoURI);
         shareIntent.setType("image/*");
         shareIntent.setPackage("com.facebook.katana");
+        //shareIntent.setPackage("com.discord");
         startActivity(Intent.createChooser(shareIntent, "Share image to..."));
 
-        
+
     }
     //============================================================================================================================
 }//end MainActivity
