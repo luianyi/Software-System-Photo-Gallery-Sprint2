@@ -25,7 +25,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.IOException;
+import java.net.URI;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -331,5 +334,29 @@ public class MainActivity extends AppCompatActivity
     }
     //============================================================================================================================
 
+    //Share the image
+    public void Share(View view)
+    {
+        File file = new File(Environment.getExternalStorageDirectory()
+                .getAbsolutePath(), "/Android/data/com.example.photogallery2/files/Pictures"); // put in our project name then it should work
+
+        String photoname = "/storage/emulated/0/Android/data/com.example.photogallery2/files/Pictures/" + filenameListF.get(currentElement).toString();
+
+        Uri share_photoURI = Uri.parse(photoname);
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        //shareIntent.putExtra(Intent.EXTRA_TEXT, ((EditText) findViewById(R.id.etCaption)).getText().toString());
+        //.putExtra(Intent.EXTRA_SUBJECT, "" + ((EditText) findViewById(R.id.etCaption)).getText().toString());
+        //File file = new File(photos.get(index));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, share_photoURI);
+        shareIntent.setType("image/*");
+        shareIntent.setPackage("com.facebook.katana");
+        //shareIntent.setPackage("com.discord");
+        startActivity(Intent.createChooser(shareIntent, "Share image to..."));
+
+
+    }
+    //============================================================================================================================
 }//end MainActivity
 

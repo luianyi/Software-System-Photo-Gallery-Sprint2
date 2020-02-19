@@ -16,4 +16,5 @@
     <string name="text_location">Location Searching</string>
     <string name="text_latitude">Latitude</string>
     <string name="button_search">Search</string>
+    <string name="button_share">Share</string>
 </resources>
