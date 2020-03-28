@@ -11,11 +11,19 @@
 // this is a test pushing my changes to my own branch
 
 package com.example.photogallery2;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
+import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,6 +34,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Bitmap;
 
 import java.io.IOException;
 import java.net.URI;
@@ -41,6 +50,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 ////////////////////// IL
+
+// Loading the OpenCV library
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+
+
 import Utils2.*; //Utility class containing helpful functions for Photo Gallery app
 import SearchUtil.*; //Utility class containing search function for Photo Gallery app
 
@@ -69,6 +92,10 @@ public class MainActivity extends AppCompatActivity
     //Instantiate the utility classes that provide helpful functions for this app
     private Utils2 U = new Utils2();
     private SearchUtil S = new SearchUtil();
+
+    // for face detection . IL
+    private String file;
+    private int STORAGE_PERMISSION_CODE = 3;
     //============================================================================================================================
 
     private void displayPhoto(String path) {
@@ -119,7 +146,23 @@ public class MainActivity extends AppCompatActivity
         //Else, go to blank screen
         else
             Go(BLANK_SCREEN);
+
+
+
+
+        //------------ face detection request for permission ------------///IL
+
+
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MainActivity.this, "you already have permission", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            //requestStoragePermission();
+        }
     }
+
+
     //============================================================================================================================
 
     public void search(View view) {
@@ -159,6 +202,35 @@ public class MainActivity extends AppCompatActivity
         Log.d("createImageFile", mCurrentPhotoPath);
         currentFileName = image.getName(); //Added WM to get the filename, for adding to filenameList.
         CurrentDate = new Date(image.lastModified());//for adding to dateList.
+
+        // android.permission.READ_EXTERNAL_STORAGE
+       // if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        //       != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+
+        //    requestStoragePermission();
+
+           // ActivityCompat.requestPermissions(this,
+                  //  new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                  //  0);
+       // }
+        //
+        String filePath = image.getPath();
+        //filePath = filePath.replace("/storage/emulated/0", "/mnt/user/0/primary");
+
+        Bitmap image_bitmap = BitmapFactory.decodeFile(filePath);
+
+        FaceDetector fd = new FaceDetector(image_bitmap.getWidth(),
+                                           image_bitmap.getHeight(),
+                                  10);
+        FaceDetector.Face face_array[] = new FaceDetector.Face[10];
+
+        int num_face = fd.findFaces(image_bitmap, face_array);
+
+        // face detection
+
+
+
         return image;
     }
     //============================================================================================================================
@@ -358,5 +430,46 @@ public class MainActivity extends AppCompatActivity
 
     }
     //============================================================================================================================
+
+    public void requestStoragePermission(View view){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("This permission is needed because of this and that")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create().show();
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == STORAGE_PERMISSION_CODE)  {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
 }//end MainActivity
 

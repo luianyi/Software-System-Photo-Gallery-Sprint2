@@ -111,4 +111,14 @@
         android:onClick="Share"
         android:text="@string/button_share" />
 
+    <Button
+        android:id="@+id/request_permission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="163dp"
+        android:onClick="requestStoragePermission"
+        android:text="Request Permission" />
+
 </RelativeLayout>
