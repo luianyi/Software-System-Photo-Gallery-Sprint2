@@ -8,7 +8,7 @@
 // this is a test on pushing code directly from android studio to github pull successful
 
 // Ian, you r wrong....bye
-
+// this is a test pushing my changes to my own branch
 
 package com.example.photogallery2;
 import androidx.appcompat.app.AppCompatActivity;
@@ -312,6 +312,7 @@ public class MainActivity extends AppCompatActivity
             else
                 tv.setText("No location information");
         }
+		// 
         else //Go to blank screen
         {
             //1. There is no current element so leave currentElement as is
