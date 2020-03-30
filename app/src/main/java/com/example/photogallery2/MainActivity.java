@@ -58,17 +58,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 ////////////////////// IL
 
-// Loading the OpenCV library
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfRect;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.CascadeClassifier;
 
 
 import Utils2.*; //Utility class containing helpful functions for Photo Gallery app
