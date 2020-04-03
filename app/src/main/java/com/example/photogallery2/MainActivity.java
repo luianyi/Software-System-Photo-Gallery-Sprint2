@@ -11,21 +11,37 @@
 // this is a test pushing my changes to my own branch
 
 package com.example.photogallery2;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
+import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.ExifInterface;
+//import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Bitmap;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
 
 import java.io.IOException;
 import java.net.URI;
@@ -41,6 +57,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 ////////////////////// IL
+
+// Loading the OpenCV library
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+
+
 import Utils2.*; //Utility class containing helpful functions for Photo Gallery app
 import SearchUtil.*; //Utility class containing search function for Photo Gallery app
 
@@ -69,6 +99,10 @@ public class MainActivity extends AppCompatActivity
     //Instantiate the utility classes that provide helpful functions for this app
     private Utils2 U = new Utils2();
     private SearchUtil S = new SearchUtil();
+
+    // for face detection . IL
+    private String file;
+    private int STORAGE_PERMISSION_CODE = 3;
     //============================================================================================================================
 
     private void displayPhoto(String path) {
@@ -119,7 +153,23 @@ public class MainActivity extends AppCompatActivity
         //Else, go to blank screen
         else
             Go(BLANK_SCREEN);
+
+
+
+
+        //------------ face detection request for permission ------------///IL
+
+
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MainActivity.this, "you already have read storage permission", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            //requestStoragePermission();
+        }
     }
+
+
     //============================================================================================================================
 
     public void search(View view) {
@@ -159,6 +209,37 @@ public class MainActivity extends AppCompatActivity
         Log.d("createImageFile", mCurrentPhotoPath);
         currentFileName = image.getName(); //Added WM to get the filename, for adding to filenameList.
         CurrentDate = new Date(image.lastModified());//for adding to dateList.
+
+        // android.permission.READ_EXTERNAL_STORAGE
+       // if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        //       != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+
+        //    requestStoragePermission();
+
+           // ActivityCompat.requestPermissions(this,
+                  //  new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                  //  0);
+       // }
+        //
+
+//
+//        String filePath = image.getPath();
+//        //filePath = filePath.replace("/storage/emulated/0", "/mnt/user/0/primary");
+//
+//        Bitmap image_bitmap = BitmapFactory.decodeFile(filePath);
+//
+//        FaceDetector fd = new FaceDetector(image_bitmap.getWidth(),
+//                                           image_bitmap.getHeight(),
+//                                  10);
+//        FaceDetector.Face face_array[] = new FaceDetector.Face[10];
+//
+//        int num_face = fd.findFaces(image_bitmap, face_array);
+//
+//        // face detection
+
+
+
         return image;
     }
     //============================================================================================================================
@@ -176,12 +257,42 @@ public class MainActivity extends AppCompatActivity
             //Write master caption and date lists to files
             U.SaveToFile(MainActivity.this, captionListM, "captions");
             U.SaveToFile(MainActivity.this, dateListM, "dates");
+
+
+
+
+            // ---------------------------------------
+
+            /*
+            String filePath = getExternalFilesDir(Environment.DIRECTORY_PICTURES)+"/"+filenameListF.get(currentElement).toString();
+            //String filePath2 = image.getPath();
+            //filePath = filePath.replace("/storage/emulated/0", "/mnt/user/0/primary");
+
+            Bitmap image_bitmap = BitmapFactory.decodeFile(filePath);
+            int width = image_bitmap.getWidth();
+            FaceDetector fd = new FaceDetector(image_bitmap.getWidth(),
+                    image_bitmap.getHeight(),
+                    10);
+            FaceDetector.Face face_array[] = new FaceDetector.Face[10];
+
+            Integer num_face = fd.findFaces(image_bitmap, face_array);
+            int x = num_face;
+            if (num_face == 0) {
+                Toast.makeText(this, "0", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, num_face.toString(), Toast.LENGTH_SHORT).show();
+            }
+            // face detection
+*/
+            //-----------------these should go after face detection done ---------------------
             //Clear filters
             filenameListF = U.copy(filenameListM);
             captionListF = U.copy(captionListM);
             dateListF = U.copy(dateListM);
             //Go to the new picture
             Go(filenameListF.size()-1);
+
+
         }//end do this if user took a picture
 
         //Do this if user searched
@@ -290,13 +401,38 @@ public class MainActivity extends AppCompatActivity
             mCurrentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES)+"/"+filenameListF.get(currentElement).toString();
             //3. Display the given image
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
-            mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
+            // ----- determine the correct orientation and display it------------- IL
+
+            mImageView.setImageBitmap(CorrectPhotoRotation(mCurrentPhotoPath));
             //4. Set the caption to the caption of the given image
             TextView textView = (TextView) findViewById(R.id.editTextCaption);
             textView.setText((CharSequence) captionListF.get(currentElement));
             //5. Set the date to the date of the given image
             TextView textViewforDate = findViewById(R.id.DatetextView);
             textViewforDate.setText((CharSequence) dateListF.get(currentElement).toString());
+
+            /*
+            //------------- find out the number of faces in each photo-------------------- IL
+            Bitmap image_bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+            FaceDetector fd = new FaceDetector(image_bitmap.getWidth(),
+                    image_bitmap.getHeight(),
+                    10);
+            FaceDetector.Face face_array[] = new FaceDetector.Face[10];
+
+            Integer num_face = fd.findFaces(image_bitmap, face_array);
+            int x = num_face;
+
+            */
+            // -----------find out the number of face in each photo ------------------- IL
+            int x = faceRecognitionV2(mCurrentPhotoPath);
+
+
+            // ----------------------display the number of face detected if any. ----------------IL
+            TextView textViewforFaceNum = findViewById(R.id.FaceNum_TextView);
+            textViewforFaceNum.setText(String.valueOf(x));
+
+
+
             //6. Set the location information to the location information of the given image
             float[] f = {0,0};   // the two values are stored here temporaely, long, lat
             boolean result = false;
@@ -358,5 +494,121 @@ public class MainActivity extends AppCompatActivity
 
     }
     //============================================================================================================================
+
+    public void requestStoragePermission(View view){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("This permission is needed because of this and that")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create().show();
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == STORAGE_PERMISSION_CODE)  {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    private int faceRecognitionV2(String imagePath) {
+        // load image file to bitmap
+        BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
+        bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap bitmap_image = CorrectPhotoRotation(imagePath);
+        // detect face
+        Context context = getApplicationContext();
+        FaceDetector detector = new FaceDetector.Builder(context)
+                .setTrackingEnabled(false)
+                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+                .build();
+        Frame frame = new Frame.Builder().setBitmap(bitmap_image).build();
+        SparseArray<Face> faces = detector.detect(frame);
+
+        return faces.size();
+        // faces.size();
+    }
+
+
+    // --------------------rotate photo --------------------------- IL
+    public static Bitmap rotateBitmap(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
+
+
+    // ---------------- determine the correction photo orientation and return the bitmap-----------IL
+    private Bitmap CorrectPhotoRotation(String photoPath)
+    {
+        int orientation = 0;
+        try {
+            ExifInterface ei = new ExifInterface(photoPath);
+            orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
+        } catch (IOException ex) {
+
+            Toast.makeText(this, "Orientation detection failed", Toast.LENGTH_SHORT).show();
+            // Error occurred while creating the File
+        }
+
+        // load image file to bitmap
+        BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
+        bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap bitmap = BitmapFactory.decodeFile(photoPath);
+
+
+
+        Bitmap rotatedBitmap = null;
+        switch(orientation) {
+
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotatedBitmap = rotateBitmap(bitmap, 90);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotatedBitmap = rotateBitmap(bitmap, 180);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotatedBitmap = rotateBitmap(bitmap, 270);
+                break;
+
+            case ExifInterface.ORIENTATION_NORMAL:
+            default:
+                rotatedBitmap = bitmap;
+        }
+
+        return rotatedBitmap;
+    }
+
+
+
 }//end MainActivity
 
